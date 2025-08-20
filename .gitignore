@@ -1,3 +1,5 @@
 /metadata.csv
 /tfidf_matrix.joblib
 /vectorizer.joblib
+/kmeans_model.joblib
+/df_clean_with_ten_clusters.joblib
