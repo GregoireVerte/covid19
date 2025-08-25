@@ -5,3 +5,4 @@
 /df_clean_with_ten_clusters.joblib
 /tsne_df_10_clusters.joblib
 /df_clean_lemmatized.joblib
+/embeddings_sample.npy
