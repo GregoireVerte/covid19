@@ -6,3 +6,4 @@
 /tsne_df_10_clusters.joblib
 /df_clean_lemmatized.joblib
 /embeddings_sample.npy
+/embeddings_full.npy
