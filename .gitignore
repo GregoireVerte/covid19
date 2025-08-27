@@ -7,3 +7,4 @@
 /df_clean_lemmatized.joblib
 /embeddings_sample.npy
 /embeddings_full.npy
+/umap_embeddings_10d.npy
