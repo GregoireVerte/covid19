@@ -8,3 +8,5 @@
 /embeddings_sample.npy
 /embeddings_full.npy
 /umap_embeddings_10d.npy
+/hdbscan_model_final.joblib
+/df_final_hdbscan_clusters.joblib
