@@ -10,3 +10,5 @@
 /umap_embeddings_10d.npy
 /hdbscan_model_final.joblib
 /df_final_hdbscan_clusters.joblib
+/df_with_all_clusters.joblib
+/kmeans_model_20c.joblib
