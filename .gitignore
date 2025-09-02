@@ -12,3 +12,6 @@
 /df_final_hdbscan_clusters.joblib
 /df_with_all_clusters.joblib
 /kmeans_model_20c.joblib
+/lda_model_20t.joblib
+/dtm_matrix.joblib
+/count_vectorizer_lda.joblib
