@@ -15,3 +15,4 @@
 /lda_model_20t.joblib
 /dtm_matrix.joblib
 /count_vectorizer_lda.joblib
+/gmm_model_20c.joblib
