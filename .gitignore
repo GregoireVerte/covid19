@@ -16,3 +16,6 @@
 /dtm_matrix.joblib
 /count_vectorizer_lda.joblib
 /gmm_model_20c.joblib
+/nmf_model_20t.joblib
+/tfidf_matrix_nmf.joblib
+/tfidf_vectorizer_nmf.joblib
