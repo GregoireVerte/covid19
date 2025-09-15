@@ -22,3 +22,5 @@
 /spectral_clustering_100k_sample_results.joblib
 /affinity_propagation_50k_sample_results.joblib
 /affinity_propagation_model_50k.joblib
+/som_model_200k.joblib
+/som_200k_indices.joblib
