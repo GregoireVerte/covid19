@@ -25,3 +25,7 @@
 /som_model_200k.joblib
 /som_200k_indices.joblib
 /som_model_full.joblib
+/ctm_model_50k.joblib
+/octis_dataset_50k.joblib
+/df_sample_ctm_50k.joblib
+/ctm_output_50k.joblib
