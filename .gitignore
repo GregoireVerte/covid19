@@ -29,3 +29,4 @@
 /octis_dataset_50k.joblib
 /df_sample_ctm_50k.joblib
 /ctm_output_50k.joblib
+mlruns/
