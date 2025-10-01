@@ -32,3 +32,4 @@
 mlruns/
 /random_forest_best_model.joblib
 /evaluator.joblib
+/balanced_random_forest_best_model.joblib
