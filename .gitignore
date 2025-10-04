@@ -35,3 +35,4 @@ mlruns/
 /balanced_random_forest_best_model.joblib
 /balanced_random_forest_best_model_v2.joblib
 /balanced_bagging_classifier.joblib
+/ada_boost_best_model.joblib
