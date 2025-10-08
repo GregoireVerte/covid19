@@ -39,3 +39,4 @@ mlruns/
 /ada_boost_best_model_ver2.joblib
 /ada_boost_best_model_ver3.joblib
 /xgboost_best_model.joblib
+/xgboost_best_model_ver2.joblib
