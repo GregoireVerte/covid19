@@ -45,3 +45,4 @@ mlruns/
 /lgb_gbdt_best_model.joblib
 /lgb_gbdt_best_model_ver2.joblib
 /lgb_gbdt_best_model_ver3.joblib
+/lgb_gbdt_best_model_ver4.joblib
