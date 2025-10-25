@@ -52,3 +52,4 @@ mlruns/
 /lgb_dart_best_model_ver4.joblib
 /covid19_analysis.db
 /covid19_dashboard.pbix
+chroma_db/
