@@ -1,0 +1,13 @@
+name: lgbm-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pandas
+  - numpy>=1.25.2,<2.0.0
+  - scikit-learn
+  - lightgbm
+  - joblib
+  - scipy>=1.11.0
+  - pip:
+    - azureml-defaults
