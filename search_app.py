@@ -7,7 +7,7 @@ import torch
 
 ## konfiguracja
 st.set_page_config(page_title="Wyszukiwarka Semantyczna COVID-19", layout="wide")
-st.title("🔬 Wyszukiwarka Semantyczna Artykułów COVID-19")
+st.title("Wyszukiwarka Semantyczna Artykułów COVID-19")
 st.markdown("Wpisz zapytanie w języku naturalnym, aby znaleźć najbardziej pasujące tematycznie artykuły naukowe.")
 
 ## Ładowanie zasobów (model, baza, DataFrame)
