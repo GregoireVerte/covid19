@@ -11,10 +11,13 @@ st.set_page_config(page_title="Asystent Badawczy AI (RAG)", layout="wide")
 st.title("Asystent Badawczy AI: Artykuły COVID-19")
 st.markdown("Zadaj pytanie, a sztuczna inteligencja odpowie na podstawie ponad 850 tys. artykułów naukowych, wykorzystując metodę RAG (Retrieval-Augmented Generation).")
 
-# pasek boczny - ustawienia)
+# pasek boczny - ustawienia
 st.sidebar.header("Ustawienia")
 mode = st.sidebar.radio("Tryb działania:", ["Proste Wyszukiwanie (Tytuły)", "Czat z AI (RAG)"])
 n_context = st.sidebar.slider("Liczba artykułów do kontekstu:", 3, 20, 5)
+
+# dodatkowy suwak temperatury (kreatywności)
+temperature = st.sidebar.slider("Kreatywność (Temperatura):", min_value=0.0, max_value=1.0, value=0.7, step=0.1, help="Niższa = bardziej precyzyjna/deterministyczna. Wyższa = bardziej kreatywna.")
 
 # ładowanie zasobów (Cache)
 @st.cache_resource
@@ -37,7 +40,7 @@ def load_resources():
 
 # inicjalizacja zasobów
 try:
-    embedding_model, df, collection = load_resources()
+    model, df, collection = load_resources()
 except Exception as e:
     st.error(f"Błąd ładowania zasobów: {e}")
     st.stop()
@@ -53,7 +56,7 @@ def get_relevant_docs(query_text, n_results=5):
 
     # konwersja zapytania na embedding
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    query_embedding = embedding_model.encode(query_text, convert_to_tensor=True, device=device)
+    query_embedding = model.encode(query_text, convert_to_tensor=True, device=device)
     query_embeddings_list = [query_embedding.cpu().numpy().tolist()]
 
     # zapytanie do ChromaDB
@@ -70,7 +73,7 @@ def get_relevant_docs(query_text, n_results=5):
     else:
         return [], []
 
-def query_llm(prompt):
+def query_llm(prompt, temp=0.7):
     """
     Wysyła prompt do lokalnego LLM poprzez API LM Studio.
     """
@@ -81,10 +84,10 @@ def query_llm(prompt):
         completion = client.chat.completions.create(
             model="model-identifier", # ignorowane przez LM Studio, używa załadowanego modelu
             messages=[
-                {"role": "system", "content": "Jesteś pomocnym i precyzyjnym asystentem badawczym specjalizującym się w literaturze na temat COVID-19. Zawsze odpowiadaj w języku polskim na podstawie dostarczonego kontekstu. Jeśli odpowiedzi nie ma w kontekście, poinformuj o tym."},
+                {"role": "system", "content": "Jesteś pomocnym i precyzyjnym asystentem badawczym specjalizującym się w literaturze na temat COVID-19. Zawsze odpowiadaj w języku polskim na podstawie dostarczonego kontekstu, chyba że użytkownik poprosi wyraźnie o odpowiedź w innym konkretnym języku (np. angielskim). Jeśli odpowiedzi nie ma w kontekście, poinformuj o tym."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7,
+            temperature=temp, # użycie temperatury z ustawień suwaka
         )
         return completion.choices[0].message.content
     except Exception as e:
@@ -92,7 +95,8 @@ def query_llm(prompt):
 
 #### Główna Logika Aplikacji 
 
-query = st.text_input("Wpisz pytanie lub słowa kluczowe:", placeholder="np. skuteczność maseczek u dzieci")
+query = st.text_input("Wpisz pytanie lub słowa kluczowe (po polsku albo najlepiej po angielsku):", 
+                      placeholder="np. skuteczność maseczek u dzieci (albo najlepiej w wariancie angielskim: e.g., effectiveness of masks in children)")
 
 if st.button("Szukaj / Zapytaj"):
     if not query:
@@ -108,7 +112,7 @@ if st.button("Szukaj / Zapytaj"):
                 # Pobranie szczegółów z DataFrame
                 try:
                     # próba pobrania tytułów i abstraktów
-                    articles_data = df.loc[doc_ids][['title', 'abstract']] 
+                    articles_data = df.loc[doc_ids][['title', 'abstract']]
                 except KeyError:
                     articles_data = df.loc[doc_ids][['title']]
                     articles_data['abstract'] = "Brak dostępnego abstraktu."
@@ -123,7 +127,7 @@ if st.button("Szukaj / Zapytaj"):
                     st.dataframe(display_df, use_container_width=True)
 
                 # 3. Generowanie Odpowiedzi (Tryb RAG)
-                elif mode == "Czat AI (RAG)":
+                elif mode == "Czat z AI (RAG)":
                     st.info(f"Znaleziono {len(doc_ids)} artykułów kontekstowych. Generowanie odpowiedzi...")
                     
                     # budowanie kontekstu z pobranych artykułów
@@ -138,7 +142,9 @@ if st.button("Szukaj / Zapytaj"):
                     {context_text}
                     ---------------------
                     Na podstawie powyższego kontekstu i bez używania wcześniejszej wiedzy ogólnej, odpowiedz na pytanie użytkownika.
-                    Odpowiedź musi być w języku polskim.
+                    Odpowiedź musi być w języku polskim, chyba że użytkownik wyraźnie zaznaczy, że ma być w innym konkretnym języku (np. angielskim).
+
+                    WAŻNE: Używaj wyłącznie alfabetu łacińskiego. Nie używaj cyrylicy ani znaków azjatyckich.
                     
                     Pytanie: {query}
                     Odpowiedź:
@@ -146,7 +152,7 @@ if st.button("Szukaj / Zapytaj"):
                     
                     # Generowanie
                     with st.spinner("AI analizuje i pisze odpowiedź..."):
-                        answer = query_llm(full_prompt)
+                        answer = query_llm(full_prompt, temp=temperature) ### przekazuje temperaturę z suwaka
                     
                     # Wyświetlenie Odpowiedzi
                     st.markdown("Odpowiedź AI:")
@@ -158,7 +164,7 @@ if st.button("Szukaj / Zapytaj"):
                             st.markdown(f"**{i+1}. {row['title']}**")
                             # skracanie abstraktu jeśli jest bardzo długi
                             abstract_text = str(row['abstract'])
-                            st.caption(abstract_text[:300] + "..." if len(abstract_text) > 300 else abstract_text)
+                            st.caption(abstract_text[:1000] + "..." if len(abstract_text) > 1000 else abstract_text)
                             st.divider()
 
 st.markdown("---")
