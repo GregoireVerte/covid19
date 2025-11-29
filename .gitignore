@@ -55,3 +55,4 @@ mlruns/
 chroma_db/
 /embeddings_light.npy
 /df_light.joblib
+/.env
