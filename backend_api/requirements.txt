@@ -1,0 +1,8 @@
+flask
+flask-cors
+python-dotenv
+pinecone-client
+groq
+sentence-transformers
+torch
+numpy
