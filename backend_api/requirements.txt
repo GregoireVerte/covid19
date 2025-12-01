@@ -1,8 +1,8 @@
-flask
-flask-cors
-python-dotenv
-pinecone-client
-groq
-sentence-transformers
-torch
-numpy
+flask==3.1.1
+flask-cors==6.0.1
+python-dotenv==1.1.0
+pinecone==8.0.0
+groq==0.36.0
+sentence-transformers==5.1.0
+torch==2.8.0
+numpy==1.26.4
