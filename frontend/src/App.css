@@ -1,56 +1,108 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* Reset i Ciemny Motyw dla całej strony */
+:root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark; /* Informuje przeglądarkę o ciemnym trybie */
+
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424; /* Ciemne tło dla całej strony */
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #242424; /* Dublowanie dla pewności */
+}
+
+#root {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.app-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
+  max-width: 900px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
 }
 
 header h1 {
-  font-size: 3.2em;
+  font-size: 3em;
   line-height: 1.1;
-  background: -webkit-linear-gradient(45deg, #646cff, #9089fc);
+  background: linear-gradient(to right, #646cff, #9089fc);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
   margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #888;
+  margin-bottom: 3rem;
+}
+
+.search-section {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hint-text {
+  font-size: 0.9em;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  width: 100%;
+  max-width: 700px;
 }
 
 .search-box {
   display: flex;
   gap: 10px;
-  margin: 2rem 0;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px; /* Szerokość pola wyszukiwania */
 }
 
 input {
-  flex: 1;
-  padding: 15px;
+  flex: 1; /* Input zajmie całe dostępne miejsce */
+  padding: 16px;
   border-radius: 8px;
-  border: 1px solid #444;
+  border: 1px solid #555;
   background-color: #1a1a1a;
   color: white;
   font-size: 1.1em;
+  width: 100%; /* Wymuszenie szerokości */
+  box-sizing: border-box; /* Żeby padding nie psuł szerokości */
+}
+
+input:focus {
+  outline: 2px solid #646cff;
+  border-color: transparent;
 }
 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0 1.5em;
   font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
+  font-weight: 600;
   background-color: #646cff;
   color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  white-space: nowrap; /* Tekst przycisku w jednej linii */
+  transition: background-color 0.25s;
 }
 
 button:hover {
@@ -58,30 +110,53 @@ button:hover {
 }
 
 button:disabled {
-  background-color: #333;
-  cursor: not-allowed;
+  background-color: #444;
+  cursor: wait;
 }
 
+/* Wyniki */
 .results-section {
   text-align: left;
-  max-width: 800px;
-  width: 100%;
-  background-color: #1a1a1a;
+  background-color: #1a1a1a; /* Nieco inne tło dla karty wyników */
   padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-answer {
+  margin-bottom: 2rem;
+}
+
+.ai-answer h2 {
+  color: #9089fc;
+  font-size: 1.4em;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
 }
 
 .ai-answer p {
-  font-size: 1.1em;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #e0e0e0;
+  white-space: pre-wrap; /* Zachowuje akapity z AI */
 }
 
-.sources-list {
-  margin-top: 2rem;
-  border-top: 1px solid #333;
-  padding-top: 1rem;
+.sources-list h3 {
+  font-size: 1.1em;
+  color: #888;
+  margin-bottom: 1rem;
 }
 
 .sources-list ul {
@@ -90,23 +165,25 @@ button:disabled {
 }
 
 .sources-list li {
-  background: #242424;
-  margin-bottom: 10px;
-  padding: 10px;
+  background: #2b2b2b;
+  margin-bottom: 8px;
+  padding: 12px;
   border-radius: 6px;
   font-size: 0.9em;
+  border-left: 3px solid #646cff;
 }
 
 .score {
-  color: #888;
-  font-size: 0.8em;
-  margin-left: 10px;
+  color: #666;
+  font-size: 0.85em;
+  float: right;
 }
 
 .error-box {
   color: #ff6b6b;
-  margin: 1rem;
-  padding: 1rem;
   border: 1px solid #ff6b6b;
+  padding: 1rem;
   border-radius: 8px;
+  margin-top: 1rem;
+  background-color: rgba(255, 107, 107, 0.1);
 }
