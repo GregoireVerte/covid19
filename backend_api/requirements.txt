@@ -3,7 +3,5 @@ flask-cors==6.0.1
 python-dotenv==1.1.0
 pinecone==8.0.0
 groq==0.36.0
-sentence-transformers==5.1.0
-torch==2.8.0
-numpy==1.26.4
+huggingface_hub>=0.27.0
 gunicorn==21.2.0

@@ -4,20 +4,20 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from pinecone import Pinecone
 from groq import Groq
-from sentence_transformers import SentenceTransformer
-import numpy as np
+###from sentence_transformers import SentenceTransformer ### niepotrzebne bo przeliczanie na wektory promptu użytkownika poprzez HuggingFace
+###import numpy as np ### niepotrzebne bo przeliczanie na wektory promptu użytkownika poprzez HuggingFace
+from huggingface_hub import InferenceClient
+
 
 ## konfiguracja
 load_dotenv() ### klucze z pliku .env
 
+
 app = Flask(__name__)
 CORS(app) ### pozwala na zapytania z innej domeny (Reacta)
 
-## inicjalizacja zasobów (raz przy starcie serwera)
 
-print("Inicjalizacja modelu embeddingów...")
-### na serwerze (Render) nie ma GPU więc wymusza się CPU
-model = SentenceTransformer('allenai-specter', device='cpu')
+### konfiguracja zewnętrznych serwisów
 
 print("Inicjalizacja Pinecone...")
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
@@ -26,6 +26,12 @@ NAMESPACE = "covid-papers" ### nazwa namespace
 
 print("Inicjalizacja Groq...")
 client_groq = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+
+print("Inicjalizacja Hugging Face Client...")
+### Hugging Face Client sam zadba o poprawny adres URL (router vs api-inference)
+client_hf = InferenceClient(token=os.getenv("HF_API_KEY"))
+
 
 ## ENDPOINTY API
 
@@ -45,9 +51,26 @@ def chat():
 
         print(f"Otrzymano zapytanie: {user_query}")
 
-        ## tworzenie Embeddingu zapytania
-        ##### konwersja do listy bo Pinecone jej oczekuje (nie numpy array)
-        query_embedding = model.encode(user_query).tolist()
+        ## generowanie wektora przez Hugging Face API (zamiast tworzenie lokalnie) --> to oszczędza RAM
+
+        try:
+            ## feature_extraction automatycznie robi zapytanie do modelu
+            ## model="sentence-transformers/allenai-specter"
+            embedding_response = client_hf.feature_extraction(
+                user_query,
+                model="sentence-transformers/allenai-specter"
+            )
+
+            ## biblioteka zwraca ndarray (numpy), trzeba zamienić na listę
+            ## wynik może być zagnieżdżony [[0.1, 0.2...]], bierzemy pierwszy wektor
+            if embedding_response.ndim > 1:
+                query_embedding = embedding_response[0].tolist()
+            else:
+                query_embedding = embedding_response.tolist()
+
+        except Exception as e:
+            print(f"Błąd generowania embeddingu (HF): {e}")
+            return jsonify({"error": f"Błąd modelu AI: {str(e)}"}), 500
 
         ## szukanie w Pinecone (Retrieval)
         search_results = index.query(
@@ -105,7 +128,7 @@ def chat():
         })
 
     except Exception as e:
-        print(f"Błąd: {e}")
+        print(f"Błąd ogólny: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
