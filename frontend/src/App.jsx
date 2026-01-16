@@ -18,13 +18,16 @@ function App() {
 
     try {
       // 1. Wysyłanie zapytania do Flaska (backendu)
-      const response = await fetch("http://127.0.0.1:5000/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query: query }),
-      });
+      const response = await fetch(
+        "https://covid19-rag-api.onrender.com/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: query }),
+        }
+      );
 
       // 2. Obsługa błędów HTTP
       if (!response.ok) {
