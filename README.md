@@ -38,20 +38,28 @@ Projekt składa się z kilku zintegrowanych modułów, tworzących pełny pipeli
 
 ## 🧠 Data Science Journey: Od Danych do Wiedzy
 
-Projekt przeszedł rygorystyczny proces badawczy, testując wiele hipotez i algorytmów. Poniżej przedstawiono kluczowe etapy analizy.
+Projekt przeszedł rygorystyczny proces badawczy, testując wiele hipotez i algorytmów. Poniżej przedstawiono kluczowe etapy analizy danych.
 
-### Faza 1: Unsupervised Learning & Topic Modeling
+### Faza 1: Unsupervised Learning & Topic Modeling (Odkrywanie Tematów)
 
-Celem było odkrycie ukrytych struktur w zbiorze 850k nieoznaczonych dokumentów. Przetestowano podejścia oparte na gęstości, grafach i faktoryzacji macierzy.
+Celem było odkrycie ukrytych struktur w zbiorze 850k nieoznaczonych dokumentów. Przetestowano szerokie spektrum algorytmów, podejścia oparte na gęstości, grafach, faktoryzacji macierzy aż po sieci neuronowe.
 
-|  Algorytm   |         Typ          |   Wynik    | Werdykt                                                                                                                           |
-| :---------: | :------------------: | :--------: | :-------------------------------------------------------------------------------------------------------------------------------- |
-|   **NMF**   | Matrix Factorization | ⭐⭐⭐⭐⭐ | **Zwycięzca.** Podzielił zbiór na 20 spójnych, interpretowalnych tematów. Przypisał etykietę każdemu dokumentowi (100% coverage). |
-| **HDBSCAN** |    Density Based     |  ⭐⭐⭐⭐  | Świetny do znajdowania nisz (mikro-tematów), ale pozostawił zbyt wiele szumu (noise) nieprzypisanego do żadnej grupy.             |
-|   **SOM**   |    Neural Network    |  ⭐⭐⭐⭐  | "Kartograf". Stworzył topologiczną mapę 2D, potwierdzając, że klastry HDBSCAN sąsiadują ze sobą geometrycznie.                    |
-| **Leiden**  |     Graph Based      |    ⭐⭐    | Wykrył społeczności strukturalne, ale **tematycznie niespójne** (np. łączył chemię organiczną z edukacją).                        |
+|  Algorytm   |         Typ          |   Wynik    | Werdykt                                                                                                                                                      |
+| :---------: | :------------------: | :--------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   **NMF**   | Matrix Factorization | ⭐⭐⭐⭐⭐ | **Zwycięzca.** Podzielił zbiór na 20 spójnych, interpretowalnych tematów. Przypisał etykietę każdemu dokumentowi (100% coverage). Użyty jako "Ground Truth". |
+| **HDBSCAN** |    Density Based     |  ⭐⭐⭐⭐  | Świetny do znajdowania nisz (mikro-tematów), ale pozostawił zbyt wiele szumu (noise) nieprzypisanego do żadnej grupy.                                        |
+|   **SOM**   |    Neural Network    |  ⭐⭐⭐⭐  | "Kartograf". Stworzył topologiczną mapę 2D, potwierdzając, że np. klastry HDBSCAN oraz klastry NMF sąsiadują ze sobą geometrycznie.                          |
+| **Leiden**  |     Graph Based      |    ⭐⭐    | Wykrył społeczności strukturalne, ale **tematycznie niespójne** (np. łączył chemię organiczną z edukacją).                                                   |
 
 > **Kluczowy Wniosek:** Choć algorytmy grafowe (Leiden/Louvain) są świetne do analizy cytowań, do analizy _treści_ (semantyki) najlepiej sprawdził się **NMF**. Wybrano go jako źródło etykiet ("Ground Truth") do dalszego uczenia modelu.
+
+> 🔍 **Pełna Analiza:** Szczegółowe porównanie wszystkich testowanych algorytmów (w tym KMeans, LDA, Spectral Clustering) oraz tabela wyników znajduje się w notebooku [`covid19_20clusters.ipynb`](./covid19_20clusters.ipynb).
+
+#### Wizualizacja Topologii Danych (Self-Organizing Maps)
+
+Mapa SOM nałożona na tematy HDBSCAN pokazuje, że dokumenty o podobnej tematyce (np. kolory klastrów) naturalnie grupują się w sąsiednich neuronach.
+
+![Mapa SOM HDBSCAN](visualizations/SOM_Map_HDBSCAN_Topics.png)
 
 ---
 
@@ -68,17 +76,25 @@ Wykorzystując etykiety wygenerowane przez NMF (20 tematów), wytrenowano model 
 - **AUC Weighted:** `0.93` (Bardzo wysoka zdolność rozróżniania klas).
 - **Accuracy:** `~58%` (Przy 20 klasach jest to wynik znacznie powyżej losowego, biorąc pod uwagę nakładanie się tematyki medycznej).
 
+> 🔍 **Szczegółowa Analiza:** Pełne porównanie wszystkich testowanych algorytmów (w tym XGBoost, LightGBM, AdaBoost) oraz tabela wyników ich metryk znajduje się w notebooku [`covid19_supervised_learning_part2.ipynb`](./covid19_supervised_learning_part2.ipynb).
+
 ---
 
 ### Faza 3: Deployment & Analytics (Azure + Power BI)
 
 Projekt wykroczył poza notatniki Jupyter, tworząc zintegrowane środowisko produkcyjne.
 
-1.  **Azure Machine Learning:** Najlepszy model LightGBM został wdrożony jako REST API Endpoint.
+1.  **Azure Machine Learning:** Najlepszy model LightGBM został wdrożony jako REST API Endpoint na Azure.
     - _Test:_ Endpoint poprawnie klasyfikował próbki testowe (np. artykuł o szczepionkach -> Temat 4).
+      Poniżej dowód poprawnego działania usługi (zapytanie JSON i odpowiedź z predykcją):
+
+    ![Azure Endpoint Test](visualizations/cloud_deployment_verification.png)
+
 2.  **SQL & Power BI:**
-    - Dane zmigrowano do bazy **SQLite**.
+    - Dane procesowane przez modele ML zmigrowano do bazy **SQLite**.
     - Stworzono interaktywny **Dashboard Power BI**, wizualizujący mapę SOM, macierze pomyłek i rozkład tematów NMF.
+
+    ![Confusion Matrix Dashboard](visualizations/confusion_matrix_dashboard.png)
 
 ---
 
@@ -86,6 +102,7 @@ Projekt wykroczył poza notatniki Jupyter, tworząc zintegrowane środowisko pro
 
 Zanim powstała finalna wersja React/Flask, projekt ewoluował przez kilka faz prototypowania:
 
-1.  **V1:** Lokalna wyszukiwarka semantyczna oparta na **ChromaDB**.
-2.  **V2:** Aplikacja **Streamlit** z prostym interfejsem czatu.
-3.  **V3 (Final):** Pełny stack **React + Flask + Pinecone + Groq**, hostowany w chmurze (Vercel/Render).
+1.  **V1 (Lokalny RAG):** Prosta wyszukiwarka semantyczna oparta na **ChromaDB** i lokalnych skryptach.
+2.  **V2 (Streamlit + LMStudio):** Interfejs czatu wykorzystujący lokalny model LLM (podłączony przez LMStudio jako serwer API).
+    - _Screenshot prototypu:_ ![Streamlit Demo](visualizations/rag_app_demo.png)
+3.  **V3 (Final - Production):** Pełny stack **React + Flask + Pinecone + Groq**, hostowany w chmurze (Vercel/Render), dostępny publicznie.
