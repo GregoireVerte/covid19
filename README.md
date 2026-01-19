@@ -106,3 +106,88 @@ Zanim powstała finalna wersja React/Flask, projekt ewoluował przez kilka faz p
 2.  **V2 (Streamlit + LMStudio):** Interfejs czatu wykorzystujący lokalny model LLM (podłączony przez LMStudio jako serwer API).
     - _Screenshot prototypu:_ ![Streamlit Demo](visualizations/rag_app_demo.png)
 3.  **V3 (Final - Production):** Pełny stack **React + Flask + Pinecone + Groq**, hostowany w chmurze (Vercel/Render), dostępny publicznie.
+
+---
+
+## ⚙️ Installation & Local Setup
+
+Aby uruchomić projekt lokalnie (zarówno aplikację RAG, jak i notatniki Jupyter), potrzebujesz:
+
+- **Python 3.11+**
+- **Node.js** (wersja LTS, np. v22.x)
+
+### 1. Klonowanie repozytorium
+
+```bash
+git clone https://github.com/GregoireVerte/covid19.git
+cd covid19
+```
+
+### 2. Pobranie Danych (Data Setup)
+
+Repozytorium nie zawiera surowych danych ze względu na ich rozmiar (**1.65 GB**).
+
+1. Pobierz plik `metadata.csv` ze strony zbioru: [**CORD-19 Research Challenge (Kaggle)**](https://www.kaggle.com/datasets/allen-institute-for-ai/CORD-19-research-challenge/data).
+2. Umieść plik `metadata.csv` w głównym folderze projektu (tam gdzie jest plik `requirements.txt`).
+
+### 3. Backend & Data Science Environment
+
+Zaleca się stworzenie wirtualnego środowiska (venv). Zainstaluj zależności z głównego pliku, aby mieć dostęp zarówno do bibliotek ML, jak i serwera Flask.
+
+```bash
+# Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# Instalacja wszystkich zależności (ML, Azure, Backend)
+pip install -r requirements.txt
+```
+
+**Konfiguracja zmiennych środowiskowych (.env):**
+W folderze `backend_api` utwórz plik o nazwie `.env` i wklej do niego swoje klucze API:
+
+```env
+PINECONE_API_KEY=twoj_klucz_pinecone
+GROQ_API_KEY=twoj_klucz_groq
+HF_API_KEY=twoj_klucz_hugging_face
+PINECONE_ENV=twoj_region_pinecone
+```
+
+### 4. Frontend Setup
+
+W nowym oknie terminala przejdź do folderu frontendowego i zainstaluj zależności React:
+
+```bash
+cd frontend
+npm install
+```
+
+### 5. Uruchomienie Aplikacji (Dev Mode)
+
+Aplikacja wymaga dwóch działających jednocześnie terminali:
+
+**Terminal 1 (Backend API):**
+
+```bash
+cd backend_api
+python app.py
+# Serwer ruszy na: http://127.0.0.1:5000
+```
+
+**Terminal 2 (Frontend React):**
+
+```bash
+cd frontend
+npm run dev
+# Aplikacja dostępna pod adresem wyświetlonym w terminalu (zazwyczaj http://localhost:5173)
+```
+
+---
+
+## 📂 Struktura Projektu
+
+- **`/backend_api`** – Kod API (Flask), logika RAG oraz pliki konfiguracyjne.
+- **`/frontend`** – Aplikacja kliencka (React + Vite).
+- **`/visualizations`** – Wygenerowane wykresy, mapy SOM, raporty z Power BI.
+- **`/covid19_deploy`** – Skrypty wdrożeniowe dla Azure ML (score.py, environment.yml).
+- **`*.ipynb`** – Notebooki Jupyter: dokumentujące proces badawczy eksperymentów ML (Unsupervised/Supervised Learning), przygotowanie danych (Vector DB/SQL) oraz testy wdrożeniowe (Azure).
