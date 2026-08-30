@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -7,6 +8,14 @@ from groq import Groq
 ###from sentence_transformers import SentenceTransformer ### niepotrzebne bo przeliczanie na wektory promptu użytkownika poprzez HuggingFace
 ###import numpy as np ### niepotrzebne bo przeliczanie na wektory promptu użytkownika poprzez HuggingFace
 from huggingface_hub import InferenceClient
+
+
+def clean_think_tags(text: str) -> str:
+    if not text:
+        return ""
+    ## Wyczyszczenie <think>...</think> lub nieobsłużonego <think> do końca tekstu
+    cleaned_text = re.sub(r'<think>(?:.*?</think>|.*)', '', text, flags=re.DOTALL)
+    return cleaned_text.strip()
 
 
 ## konfiguracja
@@ -117,9 +126,11 @@ def chat():
                 {"role": "user", "content": user_message}
             ],
             model="qwen/qwen3.6-27b", ##### darmowy i szybki model dostępny na Groq
+            max_tokens=1024  #### Bezpieczny bufor chroniący przed ucięciem odpowiedzi
         )
 
-        ai_response = chat_completion.choices[0].message.content
+        raw_ai_response = chat_completion.choices[0].message.content
+        ai_response = clean_think_tags(raw_ai_response) ### Czyszczenie odpowiedzi
 
         ## zwrócenie wyników do Frontendu
         return jsonify({
