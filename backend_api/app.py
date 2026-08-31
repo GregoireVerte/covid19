@@ -126,7 +126,6 @@ def chat():
                 {"role": "user", "content": user_message}
             ],
             model="qwen/qwen3.6-27b", ##### darmowy i szybki model dostępny na Groq
-            max_tokens=1024  #### Bezpieczny bufor chroniący przed ucięciem odpowiedzi
         )
 
         raw_ai_response = chat_completion.choices[0].message.content
