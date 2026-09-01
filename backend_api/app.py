@@ -13,9 +13,19 @@ from huggingface_hub import InferenceClient
 def clean_think_tags(text: str) -> str:
     if not text:
         return ""
-    ## Wyczyszczenie <think>...</think> lub nieobsłużonego <think> do końca tekstu
-    cleaned_text = re.sub(r'<think>(?:.*?</think>|.*)', '', text, flags=re.DOTALL)
-    return cleaned_text.strip()
+
+    ## Jeśli jest zamykający tag </think>, bierze treść po ostatnim </think>
+    if "</think>" in text:
+        text = text.split("</think>")[-1]
+
+    ## Wycina ewentualny niezamknięty <think> do końca tekstu
+    cleaned = re.sub(r'<think>.*', '', text, flags=re.DOTALL).strip()
+
+    ## ZABEZPIECZENIE: Jeśli czyszczenie usunęło cały tekst to zwraca treść po usunięciu samych tagów
+    if not cleaned:
+        cleaned = re.sub(r'</?think>', '', text, flags=re.IGNORECASE).strip()
+    
+    return cleaned
 
 
 ## konfiguracja
@@ -111,6 +121,7 @@ def chat():
         Jeśli w kontekście nie ma odpowiedzi, napisz "Nie znalazłem informacji w dostępnych artykułach".
         Odpowiadaj w języku polskim chyba, że użytkownik wyraźnie poprosi o odpowiedź w innym języku (np. angielskim).
         WAŻNE: Używaj wyłącznie alfabetu łacińskiego. Nie używaj cyrylicy ani znaków azjatyckich.
+        BARDZO WAŻNE: NIE opisuj swojego procesu myślowego (ani nie używaj tagów <think></think>). Podaj od razu ostateczną odpowiedź.
         """
 
         user_message = f"""
@@ -126,6 +137,7 @@ def chat():
                 {"role": "user", "content": user_message}
             ],
             model="qwen/qwen3.6-27b", ##### darmowy i szybki model dostępny na Groq
+            reasoning_format="hidden"  #### ukrywa proces myślowy na poziomie API Groq
         )
 
         raw_ai_response = chat_completion.choices[0].message.content
