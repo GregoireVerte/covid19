@@ -137,7 +137,7 @@ def chat():
                 {"role": "user", "content": user_message}
             ],
             model="qwen/qwen3.6-27b", ##### darmowy i szybki model dostępny na Groq
-            reasoning_format="hidden"  #### ukrywa proces myślowy na poziomie API Groq
+            reasoning_effort="none"  #### wyłącza generowanie myśli u źródła (szybka odpowiedź bez timeoutów)
         )
 
         raw_ai_response = chat_completion.choices[0].message.content
